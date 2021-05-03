@@ -1,7 +1,7 @@
+![](Roosters.png)
 # AML challenge Roosters group
 
 This repo is for the AML challenge for Master in Data Science (2021). 
-
 ## Partecipants
 - Andrea Lomurno
 - Jacopo Mocellin
