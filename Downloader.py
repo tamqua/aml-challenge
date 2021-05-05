@@ -22,12 +22,13 @@ def download_image(key_url):
         print('Image {} already exists. Skipping download.'.format(filename))
         return 0
 
-    try:
-        response = requests.get(url)
-        image_data = response.read()
-    except:
-        print('Warning: Could not download image {} from {}'.format(key, url))
-        return 1
+    response = request.urlopen(url)
+    image_data = response.read()
+    print(image_data)
+    # try:
+    # except:
+    #     # print('Warning: Could not download image {} from {}'.format(key, url))
+    #     return 1
 
     try:
         pil_image = Image.open(BytesIO(image_data))
