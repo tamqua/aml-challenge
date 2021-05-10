@@ -6,8 +6,15 @@ import random
 from numba import prange, jit, parfors
 import matplotlib.pyplot as plt
 
+
 # %%
-#  TODO change me with the actual image
+# creating the generator for each image subset
+# ==================================================================
+
+
+
+# %%
+# debug image
 img = cv2.imread("dataset\\training\\1\\ec50k_00010002.jpg", cv2.IMREAD_COLOR)
 # %%
 
@@ -33,8 +40,7 @@ def pick_color_channel(image, channel):
     # Check for the correct channel for the image to process
     # --------------------------------------------------------------------------
     if channel.lower() == "r":
-        red = np.stack((img[:,:,0],)*np.uint8(3), axis=2)
-        return red
+        return np.stack((img[:,:,0],)*np.uint8(3), axis=2)
 
     elif channel.lower() == "g":
         return np.stack((img[:,:,1],)*np.uint8(3), axis=2)
@@ -253,5 +259,8 @@ def channel_vd(image):
 channel_vd(img)
 
 # %%
+
+# %%
+
 
 # %%
