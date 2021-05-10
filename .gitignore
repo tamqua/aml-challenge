@@ -5,3 +5,4 @@ csv/
 train/
 test/
 dataset/
+processed/
