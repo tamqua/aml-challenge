@@ -18,7 +18,6 @@ img = cv2.imread("dataset\\training\\1\\ec50k_00010002.jpg", cv2.IMREAD_COLOR)
 # Normal -> 18.3 µs ± 319 ns per loop (mean ± std. dev. of 7 runs, 100000 loops each)
 # Numba compiled -> 27.2 µs ± 733 ns per loop (mean ± std. dev. of 7 runs, 10000 loops each)
 # ==============================================================================
-@jit(nogil=True)
 def pick_color_channel(image, channel):
 
     """
@@ -115,8 +114,8 @@ def fakehdr(image, alpha=-100, beta=355, preset=None):
     img = image.copy()
     
     if preset == "dark":
-        alpha = -100
-        beta = 300
+        alpha = -500
+        beta = 255
     if preset == "light":
         alpha = 500
         beta = -100
@@ -132,12 +131,6 @@ def visual_fakehdr_debug(imgpath, alpha=-100, beta=355, preset=None):
 
 
 # visual_fakehdr_debug(img, preset="light")
-
-
-# %%
-
-
-
 
 
 def channel_vd(image):
@@ -258,3 +251,7 @@ def channel_vd(image):
 
 
 channel_vd(img)
+
+# %%
+
+# %%
