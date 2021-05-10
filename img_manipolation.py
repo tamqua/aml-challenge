@@ -1,4 +1,5 @@
 # %%
+
 import numpy as np
 import cv2
 import random
@@ -8,39 +9,39 @@ import matplotlib.pyplot as plt
 # %%
 #  TODO change me with the actual image
 img = cv2.imread("dataset\\training\\1\\ec50k_00010002.jpg", cv2.IMREAD_COLOR)
-
-
 # %%
+
+# ==============================================================================
+# The jit function decorator of the packet Numba allows to compile the code to 
+# make it run faster. 
+
+# Normal -> 18.3 µs ± 319 ns per loop (mean ± std. dev. of 7 runs, 100000 loops each)
+# Numba compiled -> 27.2 µs ± 733 ns per loop (mean ± std. dev. of 7 runs, 10000 loops each)
+# ==============================================================================
 @jit(nogil=True)
 def pick_color_channel(image, channel):
 
     """
     This function allows you to manually pick a color channel for the image `img`
-    The choice for `channels` are (case insensitive):
+    The choice for `channels` are (case insensitive)
     - [R]ed
     - [G]reen
     - [B]lue
     """
-    # initialize the matrix which will be returned
-    # --------------------------------------------------------------------------
     img = image.copy()
-    red = img[:,:,0]
-    green = img[:,:,1]
-    blue = img[:,:,2]
-    
-
     
     
     # Check for the correct channel for the image to process
     # --------------------------------------------------------------------------
     if channel.lower() == "r":
+        red = np.stack((img[:,:,0],)*np.uint8(3), axis=2)
         return red
 
     elif channel.lower() == "g":
-        return green
+        return np.stack((img[:,:,1],)*np.uint8(3), axis=2)
 
     elif channel.lower() == "b":
-        return blue
+        return np.stack((img[:,:,2],)*np.uint8(3), axis=2)
     else:
         raise ValueError("The channel specified in `pick_color_channel(image, channel)` is incorrect.\nPlease use one of the following: `r` `g` `b`")
 
@@ -49,24 +50,32 @@ def pick_color_channel(image, channel):
     #     return wrong
 
 
-# %timeit pick_color_channel(img, "d")
-# Visual debug 
-# ==============================================================================
-# plt.imshow(pick_color_channel(img, "r"), cmap=plt.cm.Reds_r)
-# plt.imshow(pick_color_channel(img, "g"), cmap=plt.cm.Greens_r)
-# plt.imshow(pick_color_channel(img, "b"), cmap=plt.cm.Blues_r)
-# plt.imshow(pick_color_channel(img, "b"), cmap=plt.cm.gray)
+
 # %%
+
 
 
 # ==============================================================================
 # The jit function decorator of the packet Numba allows to compile the code to 
-# make it run faster. In fact the results measured with %timeit magic methods
-# are the following:
-# Normal -> 273 ms ± 2.36 ms per loop (mean ± std. dev. of 7 runs, 1 loop each)
-# Numba ->  3.59 ms ± 432 µs per loop (mean ± std. dev. of 7 runs, 1 loop each)
+# make it run faster. 
+# 
+# The nogil=True allow us to exit the single threaded mode in which me use to
+# work in vanilla python. GIL is an acronym for Global Interpreter Lock, and 
+# setting this switch we can enhance performance drammatically.
+#
+# The parallel option allow us to parallelize the operation across the CPU
+# threads
+#
+# The nopython arguments is to tell python try not to infere the type of data
+# resulting in an even better timing.
+#
+# In fact the results measured with %time magic methods are the following:
+#
+# Normal -> Wall time: 128 ms
+# Numba compile run ->  Wall time: 1.2 s
+# Numba compiled ->  Wall time: 2.97 ms
 # ==============================================================================
-@jit(nogil=True, parallel=True)
+@jit(nogil=True, parallel=True, nopython=True)
 def noise_over_image(image, prob=0.01):
     """
     Add salt and pepper noise to the image.\n
@@ -82,7 +91,7 @@ def noise_over_image(image, prob=0.01):
     output = np.zeros(img.shape, np.uint8)
     
     # set the max treshold for white value
-    # # --------------------------------------------------------------------------
+    # --------------------------------------------------------------------------
     treshold = 1 - prob        
 
     # for each row and column of the matrix check if the condition applies to
@@ -99,63 +108,159 @@ def noise_over_image(image, prob=0.01):
                 output[i][j] = img[i][j]
 
     return output
-noise_over_image(img)
 # %%
-def visual_debug():
+
+
+def fakehdr(image, alpha=-100, beta=355, preset=None):
+    img = image.copy()
+    
+    if preset == "dark":
+        alpha = -100
+        beta = 300
+    if preset == "light":
+        alpha = 500
+        beta = -100
+    norm_img = cv2.normalize(img,None, alpha=alpha, beta=beta, norm_type=cv2.NORM_MINMAX, dtype=cv2.CV_8UC1)
+    return norm_img
+# %%
+
+
+def visual_fakehdr_debug(imgpath, alpha=-100, beta=355, preset=None):
+    cv2.imshow('image',fakehdr(imgpath, alpha, beta, preset))
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()
+
+
+# visual_fakehdr_debug(img, preset="light")
+
+
+# %%
+
+
+
+
+
+def channel_vd(image):
+    """
+    VD stands for visual debug, with this function we can have visual
+    information about the changes made in the images while applying the various
+    functions to degrade/alterate the image
+    """
+    img = image.copy()
+
+    
+    # subplot settings
+    # ==========================================================================
+    column = 4
+    row = 3
     fig=plt.figure(dpi=300)
     fig.subplots_adjust(wspace = 0.5, hspace = 0.5)
     
-    
-    column = 4
-    row = 2
-
     # Original
-    # ==============================================================================
+    # ==========================================================================
     img_original = img
     im1 = fig.add_subplot(row,column,1)
-    im1.title.set_text("original")
+    im1.title.set_text("original image")
+    im1.title.set_size(5)
+    plt.axis('off')
     plt.imshow(img)
-
-    noise_original = noise_over_image(img)
-    fig.add_subplot(row,column,5)
     
+    noise_original = noise_over_image(img)
+    im2 = fig.add_subplot(row,column,5)
+    im2.title.set_text("original image + noise")
+    im2.title.set_size(5)
+    plt.axis('off')
     plt.imshow(noise_original)
 
 
     # Red 
-    # ==============================================================================
+    # ==========================================================================
     img_red = pick_color_channel(img, "r")
-    fig.add_subplot(row,column,2)
-    plt.imshow(img_red, cmap=plt.cm.Reds_r)
+    im3 = fig.add_subplot(row,column,2)
+    im3.title.set_text("red channel")
+    im3.title.set_size(5)
+    plt.axis('off')
+    plt.imshow(img_red)
 
     noise_red = noise_over_image(img_red)
-    fig.add_subplot(row,column,6)
-    plt.imshow(noise_red, cmap=plt.cm.Reds_r)
+    im4 = fig.add_subplot(row,column,6)
+    im4.title.set_text("red + noise")
+    im4.title.set_size(5)
+    plt.axis('off')
+    plt.imshow(noise_red)
 
     # Green
-    # ==============================================================================
+    # ==========================================================================
     img_green = pick_color_channel(img, "g")
-    fig.add_subplot(row,column,3)
-    plt.imshow(img_green, cmap=plt.cm.Greens_r)
+    im5 = fig.add_subplot(row,column,3)
+    im5.title.set_text("green channel")
+    im5.title.set_size(5)
+    plt.axis('off')
+    plt.imshow(img_green)
 
-    noise_green = noise_over_image(img_green, 0.013)
-    fig.add_subplot(row,column,7)
-    plt.imshow(noise_green, cmap=plt.cm.Greens_r)
+    noise_green = noise_over_image(img_green, 0.01)
+    im6 = fig.add_subplot(row,column,7)
+    im6.title.set_text("green channel + noise")
+    im6.title.set_size(5)
+    plt.axis('off')
+    plt.imshow(noise_green)
 
     # Blue
-    # ==============================================================================
+    # ==========================================================================
     img_blue = pick_color_channel(img, "g")
-    fig.add_subplot(row,column,4)
-    plt.imshow(img_blue, cmap=plt.cm.Blues_r)
+    im7 = fig.add_subplot(row,column,4)
+    im7.title.set_text("blue channel")
+    im7.title.set_size(5)
+    plt.axis('off')
+    plt.imshow(img_blue)
 
     noise_blue = noise_over_image(img_blue, 0.013)
-    fig.add_subplot(row,column,8)
-    plt.imshow(noise_blue, cmap=plt.cm.Blues_r)
+    im8 = fig.add_subplot(row,column,8)
+    im8.title.set_text("blue channel + noise")
+    im8.title.set_size(5)
+    plt.axis('off')
+    plt.imshow(noise_blue)
+    
+    # Fake HDR preset dark
+    # ==========================================================================
+    img_hdr_dark = fakehdr(img, preset="dark")
+    im9 = fig.add_subplot(row,column,9)
+    im9.title.set_text("Fake HDR dark")
+    im9.title.set_size(5)
+    plt.axis('off')
+    plt.imshow(img_hdr_dark)
+
+    noise_hdr_dark = noise_over_image(img_hdr_dark, 0.013)
+    im10 = fig.add_subplot(row,column,10)
+    im10.title.set_text("Fake HDR dark + noise")
+    im10.title.set_size(5)
+    plt.axis('off')
+    plt.imshow(noise_hdr_dark)
+    
+    
+    # Fake HDR preset light
+    # ==========================================================================
+    img_hdr_light = fakehdr(img, preset="light")
+    im11 = fig.add_subplot(row,column,11)
+    im11.title.set_text("Fake HDR light")
+    im11.title.set_size(5)
+    plt.axis('off')
+    plt.imshow(img_hdr_light)
+
+    noise_hdr_light = noise_over_image(img_hdr_light, 0.013)
+    im12 = fig.add_subplot(row,column,12)
+    im12.title.set_text("Fake HDR Light + noise")
+    im12.title.set_size(5)
+    plt.axis('off')
+    plt.imshow(noise_hdr_light)
 
     plt.show()
 
-# # %%
-visual_debug()
+
+channel_vd(img)
+
+
 # %%
+
 
 # %%
