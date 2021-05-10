@@ -73,7 +73,7 @@ def pick_color_channel(image, channel):
 #
 # Normal -> Wall time: 128 ms
 # Numba compile run ->  Wall time: 1.2 s
-# Numba compiled ->  Wall time: 2.97 ms
+# Numba compiled ->  Wall time: 2.s97 ms
 # ==============================================================================
 @jit(nogil=True, parallel=True, nopython=True)
 def noise_over_image(image, prob=0.01):
@@ -258,9 +258,3 @@ def channel_vd(image):
 
 
 channel_vd(img)
-
-
-# %%
-
-
-# %%
