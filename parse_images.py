@@ -93,7 +93,7 @@ class Dataset:
 # initialize the instance of the Dataset Class
 # ==============================================================================
 Training            = Dataset(training_path)
-Validation_Gallery   = Dataset(validation_gallery_path)
+Validation_Gallery  = Dataset(validation_gallery_path)
 Validation_Query    = Dataset(validation_query_path)
 # ==============================================================================
 
@@ -150,7 +150,7 @@ def save_all_images(myinstance):
     counter = 0
     failed = 0
     all_files = myinstance.get_files()
-    for img in tqdm(myinstance.parse_image(color=False), total=myinstance.len_files()):
+    for img in tqdm(myinstance.parse_image(color=False), total=myinstance.len_files(), desc="Save all images"):
         
         # extrapolate from the filename the new path replacing the folder name
         # --------------------------------------------------------------------------
@@ -169,7 +169,7 @@ def save_all_images(myinstance):
         # --------------------------------------------------------------------------
         try:
             global_visual_debugger(img, savefig=True, fname=fname)
-            logging.info(f'created visual debug for {fname}')
+            # logging.info(f'created visual debug for {fname}')
         except:
             sep_index = fname.rfind(os.path.sep)
             splitted_fname = fname[sep_index:]
@@ -177,7 +177,7 @@ def save_all_images(myinstance):
             os.mkdir(fpath)
             try:
                 global_visual_debugger(img, savefig=True, fname=os.path.join(fpath,splitted_fname))
-                logging.info(f'created folder {fpath}')
+                # logging.info(f'created folder {fpath}')
             except:
                 logging.warning(f'Failed to save {splitted_fname} in {fpath}')
                 failed +=1
@@ -186,7 +186,7 @@ def save_all_images(myinstance):
         counter += 1
     print(f"Process finished with {failed} operations, you can run again or take a look at parse.log file")
 # ==============================================================================
-
+# %%
 
 
 # %%
@@ -195,7 +195,7 @@ def save_all_images(myinstance):
 def visualize_all_images():
     counter = 0
     all_files = Training.get_files()
-    for img in tqdm(Training.parse_image(color=False), total=Training.len_files()):
+    for img in tqdm(Training.parse_image(color=False), total=Training.len_files(),  desc="Display all images"):
         # pick_color_channel(img, "r")
         # noise_over_image(img, prob=0.015)
         # fakehdr(img, alpha=-100, beta=355, preset=None)

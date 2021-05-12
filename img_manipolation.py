@@ -163,7 +163,6 @@ def global_visual_debugger(image, savefig=False, fname=0):
     im1.title.set_size(5)
     plt.axis('off')
     plt.imshow(img)
-    plt.close()
     # --------------------------------------------------------------------------
 
 
@@ -175,7 +174,6 @@ def global_visual_debugger(image, savefig=False, fname=0):
     im2.title.set_size(5)
     plt.axis('off')
     plt.imshow(noise_original)
-    plt.close()
     # --------------------------------------------------------------------------
 
 
@@ -187,7 +185,6 @@ def global_visual_debugger(image, savefig=False, fname=0):
     im3.title.set_size(5)
     plt.axis('off')
     plt.imshow(img_red)
-    plt.close()
     # --------------------------------------------------------------------------
 
     # Red + Noise
@@ -198,7 +195,6 @@ def global_visual_debugger(image, savefig=False, fname=0):
     im4.title.set_size(5)
     plt.axis('off')
     plt.imshow(noise_red)
-    plt.close()
     # --------------------------------------------------------------------------
 
     # Green
@@ -209,7 +205,6 @@ def global_visual_debugger(image, savefig=False, fname=0):
     im5.title.set_size(5)
     plt.axis('off')
     plt.imshow(img_green)
-    plt.close()
     # --------------------------------------------------------------------------
 
     # Green + Noise
@@ -220,7 +215,6 @@ def global_visual_debugger(image, savefig=False, fname=0):
     im6.title.set_size(5)
     plt.axis('off')
     plt.imshow(noise_green)
-    plt.close()
     # --------------------------------------------------------------------------
 
     # Blue
@@ -231,7 +225,6 @@ def global_visual_debugger(image, savefig=False, fname=0):
     im7.title.set_size(5)
     plt.axis('off')
     plt.imshow(img_blue)
-    plt.close()
     # --------------------------------------------------------------------------
 
     # Blue + Noise
@@ -242,7 +235,6 @@ def global_visual_debugger(image, savefig=False, fname=0):
     im8.title.set_size(5)
     plt.axis('off')
     plt.imshow(noise_blue)
-    plt.close()
     # --------------------------------------------------------------------------
     
     # Fake HDR preset DARK
@@ -253,7 +245,6 @@ def global_visual_debugger(image, savefig=False, fname=0):
     im9.title.set_size(5)
     plt.axis('off')
     plt.imshow(img_hdr_dark)
-    plt.close()
     # --------------------------------------------------------------------------
 
     # Fake HDR preset DARK + Noise
@@ -264,7 +255,6 @@ def global_visual_debugger(image, savefig=False, fname=0):
     im10.title.set_size(5)
     plt.axis('off')
     plt.imshow(noise_hdr_dark)
-    plt.close()
     # --------------------------------------------------------------------------
     
     
@@ -276,7 +266,6 @@ def global_visual_debugger(image, savefig=False, fname=0):
     im11.title.set_size(5)
     plt.axis('off')
     plt.imshow(img_hdr_light)
-    plt.close()
     # --------------------------------------------------------------------------
 
 
@@ -288,7 +277,6 @@ def global_visual_debugger(image, savefig=False, fname=0):
     im12.title.set_size(5)
     plt.axis('off')
     plt.imshow(noise_hdr_light)
-    plt.close()
     # --------------------------------------------------------------------------
     if not savefig:
         plt.show()
