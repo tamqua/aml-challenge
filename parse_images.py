@@ -20,15 +20,15 @@ validation_query_path   = os.walk(os.path.join("dataset", "validation", "query")
 # ==============================================================================
 class Dataset:
     """
-    The class Dataset is standardize all the tasks easily across The Training
-    and Test set. 
-    The methods are:
-        print_dirs()    -> perform pprint of the directory saved in self.list_dirs
-        get_dirs()      -> return (lst) self.list_dirs
-        len_dirs()      -> return (int) len(self.list_dirs)
-        print_files()   -> perform pprint of the files saved in self.list_files
-        get_files()     -> return (lst) self.list_files
-        len_files()     -> return (int) len(self.list_files)
+    The class Dataset is standardize all the tasks easily across The Training\n
+    and Test set. \n
+    The methods are:\n
+        print_dirs()    -> perform pprint of the directory saved in self.list_dirs\n
+        get_dirs()      -> return (lst) self.list_dirs\n
+        len_dirs()      -> return (int) len(self.list_dirs)\n
+        print_files()   -> perform pprint of the files saved in self.list_files\n
+        get_files()     -> return (lst) self.list_files\n
+        len_files()     -> return (int) len(self.list_files)\n
         parse_image()   -> return a generator for looping through the dataset
     """
 
@@ -85,8 +85,14 @@ class Dataset:
             img = cv2.imread(self.list_files[i], cv2.IMREAD_COLOR)
             yield img
     # --------------------------------------------------------------------------
-
-
+    
+    # creating a generator with path to images
+    # --------------------------------------------------------------------------
+    def parse_image_path(self, color=False):
+        for i in prange(len(self.list_files)):
+            yield self.list_files[i]
+            
+    # --------------------------------------------------------------------------
 
 # %%
 
@@ -142,7 +148,7 @@ def create_processed():
     create_dir_structure("processed", "validation", "gallery")
     create_dir_structure("processed", "validation", "query")
 # ==============================================================================
-
+create_processed()
 
 # example usage of the generator in file saving mode
 # ==============================================================================
@@ -186,7 +192,13 @@ def save_all_images(myinstance):
         counter += 1
     print(f"Process finished with {failed} operations, you can run again or take a look at parse.log file")
 # ==============================================================================
-# %%
+
+
+
+# save_all_images(Training)
+# save_all_images(Validation_Gallery)
+# save_all_images(Validation_Query)
+
 
 
 # %%
@@ -195,7 +207,7 @@ def save_all_images(myinstance):
 def visualize_all_images():
     counter = 0
     all_files = Training.get_files()
-    for img in tqdm(Training.parse_image(color=False), total=Training.len_files(),  desc="Display all images"):
+    for img in tqdm(Training.parse_image_path(color=False), total=Training.len_files(),  desc="Display all images"):
         # pick_color_channel(img, "r")
         # noise_over_image(img, prob=0.015)
         # fakehdr(img, alpha=-100, beta=355, preset=None)
@@ -203,10 +215,14 @@ def visualize_all_images():
         # visual_fakehdr_debug(img, alpha=-100, beta=355)
         # global_visual_debugger(img)
 
-        # global_visual_debugger(img)
+        img = cv2.imread(img)
+        # # global_visual_debugger(img)
+        # cv2.imshow('image',enhance_features(img, 5, 7, False) + enhance_features(img, 2, 4, True))
+        # cv2.waitKey(0)
+        # cv2.destroyAllWindows()
 
+
+        draw_orb(img, enhanced=True)
         pass
 # ==============================================================================
 
-
-# %%

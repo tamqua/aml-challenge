@@ -126,11 +126,58 @@ def fakehdr(image, alpha=-100, beta=355, preset=None):
 # %%
 # A simple visual debugger to test the correct value or preset with an image
 # ==============================================================================
-def visual_fakehdr_debug(image, alpha=-100, beta=355, preset=None):
-    cv2.imshow('image',fakehdr(image, alpha, beta, preset))
+def visual_fakehdr_debug(img):
+    # img = cv2.edgePreservingFilter(img, flags=2, sigma_s=200, sigma_r=0.1)
+    img = cv2.cv2.detailEnhance(img, sigma_s=60, sigma_r=0.15)
+    cv2.imshow('image',img)
+
     cv2.waitKey(0)
     cv2.destroyAllWindows()
 # ==============================================================================
+
+
+# %%
+
+def enhance_features(img, val1, val2, inverse=True):
+    kernel1 = np.ones((val1,val1),np.float32)/val1**2
+    dst1 = cv2.filter2D(img,-1,kernel1)
+    kernel2 = np.ones((val2,val2),np.float32)/val2**2
+    dst2 = cv2.filter2D(img,-1,kernel2)
+    if inverse:
+        return  dst1 - dst2 - img
+    else:
+        return  dst1 - dst2 + img
+
+
+def draw_orb(img, enhanced=True):
+    if enhanced:
+        training_image = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+        training_gray  = cv2.cvtColor(training_image, cv2.COLOR_RGB2GRAY)
+        training_image = enhance_features(training_image, 5, 7, True)
+        training_gray  = enhance_features(training_gray, 5, 7, True)
+    else:
+        training_image = cv2.cvtColor(img, cv2.COLOR_BGR2RGB) 
+        training_gray = cv2.cvtColor(training_image, cv2.COLOR_RGB2GRAY)
+    test_image = cv2.pyrDown(training_image)
+    test_image = cv2.pyrDown(test_image)
+    test_gray = cv2.cvtColor(test_image, cv2.COLOR_RGB2GRAY)
+    orb = cv2.ORB_create()
+
+    train_keypoints, train_descriptor = orb.detectAndCompute(training_gray, None)
+    test_keypoints, test_descriptor = orb.detectAndCompute(test_gray, None)
+
+    keypoints_without_size = np.copy(training_image)
+    keypoints_with_size = np.copy(training_image)
+
+    cv2.drawKeypoints(training_image, train_keypoints, keypoints_without_size, color = (0, 255, 0))
+
+    cv2.drawKeypoints(training_image, train_keypoints, keypoints_with_size, flags = cv2.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS)
+
+    return (keypoints_with_size, keypoints_without_size)
+
+
+
+
 
 
 
@@ -149,7 +196,7 @@ def global_visual_debugger(image, savefig=False, fname=0):
     # subplot settings
     # --------------------------------------------------------------------------
     column = 4
-    row = 3
+    row = 4
     fig=plt.figure(dpi=300)
     fig.subplots_adjust(wspace = 0.5, hspace = 0.5)
     # --------------------------------------------------------------------------
@@ -277,6 +324,48 @@ def global_visual_debugger(image, savefig=False, fname=0):
     im12.title.set_size(5)
     plt.axis('off')
     plt.imshow(noise_hdr_light)
+    # --------------------------------------------------------------------------
+    
+    # ORB points
+    # --------------------------------------------------------------------------
+    orb_point_distance = draw_orb(img,enhanced=False)[0]
+    im9 = fig.add_subplot(row,column,13)
+    im9.title.set_text("ORB points with distance")
+    im9.title.set_size(5)
+    plt.axis('off')
+    plt.imshow(orb_point_distance)
+    # --------------------------------------------------------------------------
+
+    # Fake HDR preset DARK + Noise
+    # --------------------------------------------------------------------------
+    orb_point = draw_orb(img,enhanced=False)[1]
+    im10 = fig.add_subplot(row,column,14)
+    im10.title.set_text("ORB points")
+    im10.title.set_size(5)
+    plt.axis('off')
+    plt.imshow(orb_point)
+    # --------------------------------------------------------------------------
+    
+    
+    # Fake HDR preset LIGHT
+    # --------------------------------------------------------------------------
+    enhanced_distance = draw_orb(img,enhanced=True)[0]
+    im11 = fig.add_subplot(row,column,15)
+    im11.title.set_text("Enhanced image with ORB distance")
+    im11.title.set_size(5)
+    plt.axis('off')
+    plt.imshow(enhanced_distance)
+    # --------------------------------------------------------------------------
+
+
+    # Fake HDR preset LIGHT + Noise
+    # --------------------------------------------------------------------------
+    enhanced = draw_orb(img,enhanced=True)[1]
+    im12 = fig.add_subplot(row,column,16)
+    im12.title.set_text("Enhanced image with ORB points")
+    im12.title.set_size(5)
+    plt.axis('off')
+    plt.imshow(enhanced)
     # --------------------------------------------------------------------------
     if not savefig:
         plt.show()
