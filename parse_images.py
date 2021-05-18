@@ -6,7 +6,7 @@ import cv2
 from img_manipolation import *
 from tqdm import tqdm
 import logging
-logging.basicConfig(filename='parse.log', encoding='utf-8', level=logging.INFO)
+#logging.basicConfig(filename='parse.log', encoding='utf-8', level=logging.INFO)
 # %%
 # initialize the generator for the respective folders
 # ==============================================================================
@@ -20,7 +20,7 @@ validation_query_path   = os.walk(os.path.join("dataset", "validation", "query")
 # ==============================================================================
 class Dataset:
     """
-    The class Dataset is standardize all the tasks easily across The Training\n
+    The class Dataset standardizes all the tasks easily across The Training\n
     and Test set. \n
     The methods are:\n
         print_dirs()    -> perform pprint of the directory saved in self.list_dirs\n
@@ -94,11 +94,24 @@ class Dataset:
             
     # --------------------------------------------------------------------------
 
+    def __getitem__(self, idx):
+        '''
+        Makes the dataset iterable.
+        :param idx: the integer index of the element to retrieve
+        :return: cv2.imread() object at position [idx].
+        '''
+        #JM
+        img = cv2.imread(self.list_files[idx], cv2.IMREAD_COLOR)
+        return img
+
+
+
 # %%
 
 # initialize the instance of the Dataset Class
+# JM needs an os.walk object as input
 # ==============================================================================
-Training            = Dataset(training_path)
+Training            = Dataset(training_path)  
 Validation_Gallery  = Dataset(validation_gallery_path)
 Validation_Query    = Dataset(validation_query_path)
 # ==============================================================================
